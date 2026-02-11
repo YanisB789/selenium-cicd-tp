@@ -143,5 +143,83 @@ class TestCalculator:
         # Vérifier que le chargement prend moins de 3 secondes
         assert load_time < 3.0, f"Page trop lente à charger: {load_time:.2f}s"
 
+    def test_decimal_numbers(self, driver):
+        """Test 6: Tester avec des nombres décimaux"""
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/index.html"))
+        driver.get(f"file://{file_path}")
+        
+        # Test avec des décimaux
+        driver.find_element(By.ID, "num1").clear()
+        driver.find_element(By.ID, "num1").send_keys("10.5")
+        driver.find_element(By.ID, "num2").clear()
+        driver.find_element(By.ID, "num2").send_keys("2.5")
+        
+        # Tester l'addition
+        select = Select(driver.find_element(By.ID, "operation"))
+        select.select_by_value("add")
+        
+        driver.find_element(By.ID, "calculate").click()
+        
+        # Attendre que le résultat contienne du texte (pas vide)
+        result = WebDriverWait(driver, 10).until(
+            lambda d: d.find_element(By.ID, "result").text != ""
+        )
+        
+        result_element = driver.find_element(By.ID, "result")
+        assert "Résultat: 13" in result_element.text
+        
+        # Tester la multiplication avec décimaux
+        driver.find_element(By.ID, "num1").clear()
+        driver.find_element(By.ID, "num1").send_keys("5.5")
+        driver.find_element(By.ID, "num2").clear()
+        driver.find_element(By.ID, "num2").send_keys("2")
+        
+        select.select_by_value("multiply")
+        driver.find_element(By.ID, "calculate").click()
+        
+        # Attendre que le résultat soit mis à jour
+        WebDriverWait(driver, 10).until(
+            lambda d: "11" in d.find_element(By.ID, "result").text
+        )
+        
+        result_element = driver.find_element(By.ID, "result")
+        assert "Résultat: 11" in result_element.text
+
+    def test_negative_numbers(self, driver):
+        """Test 7: Tester avec des nombres négatifs"""
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/index.html"))
+        driver.get(f"file://{file_path}")
+        
+        # Test avec des nombres négatifs
+        driver.find_element(By.ID, "num1").clear()
+        driver.find_element(By.ID, "num1").send_keys("-10")
+        driver.find_element(By.ID, "num2").clear()
+        driver.find_element(By.ID, "num2").send_keys("5")
+        
+        # Addition avec négatif
+        select = Select(driver.find_element(By.ID, "operation"))
+        select.select_by_value("add")
+        
+        driver.find_element(By.ID, "calculate").click()
+        
+        result = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "result"))
+        )
+        assert "Résultat: -5" in result.text
+        
+        # Soustraction avec deux négatifs
+        driver.find_element(By.ID, "num1").clear()
+        driver.find_element(By.ID, "num1").send_keys("-8")
+        driver.find_element(By.ID, "num2").clear()
+        driver.find_element(By.ID, "num2").send_keys("-3")
+        
+        select.select_by_value("subtract")
+        driver.find_element(By.ID, "calculate").click()
+        
+        result = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "result"))
+        )
+        assert "Résultat: -5" in result.text
+
 if __name__ == "__main__":
     pytest.main(["-v", "--html=report.html", "--self-contained-html"])
