@@ -1,0 +1,6 @@
+tests/htmlcov/
+tests/.pytest_cache/
+tests/report.html
+test-report.html
+tests/__pycache__/
+*.pyc
