@@ -124,6 +124,24 @@ class TestCalculator:
             )
             assert f"Résultat: {expected}" in result.text
             time.sleep(1)
+    
+    def test_page_load_time(self, driver):
+        """Test 5: Mesurer le temps de chargement de la page"""
+        start_time = time.time()
+        
+        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../src/index.html"))
+        driver.get(f"file://{file_path}")
+        
+        # Attendre que la page soit complètement chargée
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "calculator"))
+        )
+        
+        load_time = time.time() - start_time
+        print(f"\nTemps de chargement: {load_time:.2f} secondes")
+        
+        # Vérifier que le chargement prend moins de 3 secondes
+        assert load_time < 3.0, f"Page trop lente à charger: {load_time:.2f}s"
 
 if __name__ == "__main__":
     pytest.main(["-v", "--html=report.html", "--self-contained-html"])
