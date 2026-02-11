@@ -23,9 +23,13 @@ class TestCalculator:
             chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--disable-gpu')
             chrome_options.add_argument('--window-size=1920,1080')
+            # En CI, on utilise le chromedriver du système
+            driver = webdriver.Chrome(options=chrome_options)
+        else:
+            # En local, on utilise webdriver-manager
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=chrome_options)
         
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
         driver.implicitly_wait(10)
         
         yield driver
